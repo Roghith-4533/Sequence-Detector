@@ -31,7 +31,7 @@ Capture the waveforms and include the results in the final report.
 Verilog Code for Sequence Detector Using Moore FSM
 
   Moore sequence detector :
-
+```
 module moore_sequence_detector(
     input clk,
     input reset,
@@ -95,12 +95,12 @@ module moore_sequence_detector(
     end
 endmodule
 
-
+```
 
 Verilog Code for Sequence Detector Using Mealy FSM
 
 Mealy sequence detector :
-
+```
 module mealy_sequence_detector (
     input clk,             
     input reset,
@@ -156,10 +156,10 @@ module mealy_sequence_detector (
         endcase
     end
 endmodule
-
+```
 Testbench for Sequence Detector (Moore and Mealy FSMs)
 Testbench : 
-
+```
 `timescale 1ns / 1ps  
 
 module testbench;
@@ -226,7 +226,7 @@ module testbench;
                   $time, seq_in, output_mealy, output_moore);
     end
 endmodule
-
+```
 
 OUTPUT:![MOORE 2](https://github.com/user-attachments/assets/c5bc3d6f-6236-4da5-9d97-c8d328486ba0)
 
