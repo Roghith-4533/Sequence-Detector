@@ -1,8 +1,9 @@
 # Sequence-Detector
-Aim
+
+# Aim
 To design and simulate a sequence detector using both Moore and Mealy state machine models in Verilog HDL, and verify their functionality through a testbench using the Vivado 2023.1 simulation environment. The objective is to detect a specific sequence of bits (e.g., 1011) and compare the Moore and Mealy designs.
 
-Apparatus Required
+# Apparatus Required
 Vivado 2023.1 or equivalent Verilog simulation tool.
 Computer system with a suitable operating system.
 Procedure
@@ -28,208 +29,217 @@ Save and Document Results:
 
 Capture the waveforms and include the results in the final report.
 
-Verilog Code for Sequence Detector Using Moore FSM
+# Verilog Code for Sequence Detector Using Moore FSM
 
-  Moore sequence detector :
+  # Moore sequence detector :
+module fsm_sequence(
 ```
-module moore_sequence_detector(
     input clk,
     input reset,
-    input seq_in,
-    output reg output_x
+    input run,
+    output reg [3:0] count
 );
-    // defining state encoding in parameter
-    parameter S0 = 3'b000, 
-              S1 = 3'b001, 
-              S2 = 3'b010, 
-              S3 = 3'b011, 
-              S4 = 3'b100;
-
-    reg [2:0] current_state, next_state;  // 3-bit state variables
-    
-    // State transition logic (state register update)
-    always @(posedge clk or posedge reset) begin
-        if (reset)
-            current_state <= S0;
-        else
-            current_state <= next_state;
+  localparam s0 = 4'd0;
+    localparam s2 = 4'd2;
+    localparam s4 = 4'd4;
+    localparam s6 = 4'd6;
+    localparam s8 = 4'd8;
+    localparam s10 = 4'd10;
+    localparam s12 = 4'd12;
+ reg [3:0] current_state, next_state;
+always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            current_state <= s0;  
+        end else begin
+            current_state <= next_state;  
+        end
     end
-    
-    // next state and output logic
     always @(*) begin
-        output_x = 1'b0;  // default output for moore FSM
         case (current_state)
-            S0: begin
-                if (seq_in)
-                    next_state = S1;
-                else
-                    next_state = S0;
-            end
-            S1: begin
-                if (seq_in)
-                    next_state = S1;
-                else
-                    next_state = S2;
-            end
-            S2: begin
-                if (seq_in)
-                    next_state = S3;
-                else
-                    next_state = S2;
-            end
-            S3: begin
-                if (seq_in)
-                    next_state = S4;
-                else
-                    next_state = S2;
-            end
-            S4: begin
-                output_x = 1'b1;  // Output high on detecting 1011
-                if (seq_in)
-                    next_state = S1;
-                else
-                    next_state = S0;
-            end
-            default: next_state = S0;
+            s0:  if (run) next_state = s2;  else next_state = s0;
+            s2:  if (run) next_state = s4;  else next_state = s2;
+            s4:  if (run) next_state = s6;  else next_state = s4;
+            s6:  if (run) next_state = s8; else next_state = s6;
+            s8:  if (run) next_state = s10; else next_state = s8;
+            s10: if (run) next_state = s12; else next_state = s10;
+            s12: if (run) next_state = s0;  else next_state = s12;
+            default: next_state = s0;
         endcase
     end
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            count <= 4'd0; 
+        end else begin
+            count <= current_state;  
+        end
+    end
 endmodule
-
 ```
+# OUTPUT: ![image](https://github.com/user-attachments/assets/3b70ad8f-9d67-4038-9479-777fd00a22d5)
 
-Verilog Code for Sequence Detector Using Mealy FSM
 
-Mealy sequence detector :
+# Verilog Code for Sequence Detector Using Mealy FSM
+
+# Mealy sequence detector :
 ```
-module mealy_sequence_detector (
-    input clk,             
+module fsm_sequence(
+    input clk,
     input reset,
-    input seq_in,
-    output reg output_x
+    input run,
+    output reg [3:0] count
 );
-    // define state encoding using parameter
-    parameter S0 = 3'b000, 
-              S1 = 3'b001, 
-              S2 = 3'b010, 
-              S3 = 3'b011;
+    localparam s0  = 4'd0;
+    localparam s2  = 4'd2;
+    localparam s4  = 4'd4;
+    localparam s6  = 4'd6;
+    localparam s8  = 4'd8;
+    localparam s10 = 4'd10;
+    localparam s12 = 4'd12;
 
-    reg [2:0] current_state, next_state;  // 3-bit state variables
-
-    // state transition logic
+ reg [3:0] current_state, next_state;
     always @(posedge clk or posedge reset) begin
-        if (reset)
-            current_state <= S0;
-        else
-            current_state <= next_state;
+        if (reset) begin
+            current_state <= s0;  
+        end else begin
+            current_state <= next_state;  
+        end
     end
-
-    // next state and output logic
-    always @(*) begin
-        output_x = 0;  
+  always @(*) begin
         case (current_state)
-            S0: begin
-                if (seq_in)
-                    next_state = S1;
-                else
-                    next_state = S0;
-            end
-            S1: begin
-                if (seq_in)
-                    next_state = S1;
-                else
-                    next_state = S2;
-            end
-            S2: begin
-                if (seq_in)
-                    next_state = S3;
-                else
-                    next_state = S0;
-            end
-            S3: begin
-                if (seq_in) begin
-                    next_state = S1;
-                    output_x = 1;  // sequence is detected
-                end else
-                    next_state = S2;
-            end
-            default: next_state = S0;
+            s0:  next_state = run ? s2 : s0;
+            s2:  next_state = run ? s4 : s2;
+            s4:  next_state = run ? s6 : s4;
+            s6:  next_state = run ? s8 : s6;
+            s8:  next_state = run ? s10 : s8;
+            s10: next_state = run ? s12 : s10;
+            s12: next_state = run ? s0 : s12;
+            default: next_state = s0;
+        endcase
+    end
+ always @(*) begin
+        case (current_state)
+            s0:  count = run ? 4'd2 : 4'd0;
+            s2:  count = run ? 4'd4 : 4'd2;
+            s4:  count = run ? 4'd6 : 4'd4;
+            s6:  count = run ? 4'd8 : 4'd6;
+            s8:  count = run ? 4'd10 : 4'd8;
+            s10: count = run ? 4'd12 : 4'd10;
+            s12: count = run ? 4'd0 : 4'd12;
+            default: count = 4'd0;
         endcase
     end
 endmodule
 ```
-Testbench for Sequence Detector (Moore and Mealy FSMs)
-Testbench : 
+# OUTPUT: ![image](https://github.com/user-attachments/assets/b4e1de95-06f4-4a12-86e2-483d3aafd700)
+
+# Testbench for MOORE
+
 ```
-`timescale 1ns / 1ps  
+module tb_fsm_sequence;
 
-module testbench;
-    reg clk, reset, seq_in;
-    wire output_mealy, output_moore;
-
-    // instantiate the Mealy sequence detector
-    mealy_sequence_detector u1 (
+ reg clk;
+    reg reset;
+    reg run;
+    wire [3:0] count;
+    fsm_sequence uut (
         .clk(clk),
         .reset(reset),
-        .seq_in(seq_in),
-        .output_x(output_mealy)
+        .run(run),
+        .count(count)
     );
-
-    // instantiate the Moore sequence detector
-    moore_sequence_detector u2 (
-        .clk(clk),
-        .reset(reset),
-        .seq_in(seq_in),
-        .output_x(output_moore)
-    );
-
-    
-    always #5 clk = ~clk;  
-
-    initial begin
-        
+  always #10 clk = ~clk;
+  initial begin
         clk = 0;
         reset = 1;
-        seq_in = 0;
-
-        
-        #10 reset = 0;
-
-        // Apply input sequence "1011" (in hexadecimal: 0xB = 4'b1011)
-        #10 seq_in = 1;  // 1
-        #10 seq_in = 0;  // 0
-        #10 seq_in = 1;  // 1
-        #10 seq_in = 1;  // 1, 1011 sequence detected
-
-        // apply input sequence "110" (in hexadecimal: 0x6 = 3'b110)
-        #10 seq_in = 1;  // 1
-        #10 seq_in = 1;  // 1
-        #10 seq_in = 0;  // 0, sequence ends
-
-        // apply input sequence "1001" (in hexadecimal: 0x9 = 4'b1001)
-        #10 seq_in = 1;  // 1
-        #10 seq_in = 0;  // 0
-        #10 seq_in = 0;  // 0
-        #10 seq_in = 1;  // 1
-
-        // apply input sequence "011" (in hexadecimal: 0x3 = 3'b011)
-        #10 seq_in = 0;  // 0
-        #10 seq_in = 1;  // 1
-        #10 seq_in = 1;  // 1, sequence ends
-
-        // finish simulation after some time
-        #100 $finish;
+        run = 0;
+        #20 reset = 0; 
+        #20 run = 1;   
+        #100 run = 0;   
+        #40 run = 1;   
+        #100 $finish;   
     end
-
-    
-    initial begin
-        $monitor("Time = %0t | seq_in = %b | Mealy output = %b | Moore output = %b", 
-                  $time, seq_in, output_mealy, output_moore);
+   
+   initial begin
+        $monitor("Time: %0t | clk: %b | reset: %b | run: %b | count: %d", 
+                 $time, clk, reset, run, count);
+    end
+  initial begin
+        $dumpfile("fsm_sequence_tb.vcd");
+        $dumpvars(0, tb_fsm_sequence);
     end
 endmodule
 ```
+OUTPUT:![image](https://github.com/user-attachments/assets/74546834-5412-4992-b470-6b9971e735e5)
 
-OUTPUT:![MOORE 2](https://github.com/user-attachments/assets/c5bc3d6f-6236-4da5-9d97-c8d328486ba0)
+# Testbench for Mealey:
+```
+module mealy(clk,rst,inp,out);
+ input clk, rst, inp;
+ output out;
+ reg out;
+ reg [1:0] state;
+ always @(posedge clk, posedge rst)
+ begin
+     if(rst)
+     begin
+     out <= 0;
+            state <= 2'b00;
+         end
+     else
+         begin
+             case (state)
+             2'b00: 
+                 begin
+                     if (inp) begin
+                         state <=2'b01;
+                         out <=0;
+                     end
+                     else begin
+                         state <=2'b10;
+                         out <=0;
+                    end
+                 end
+             2'b01:
+                 begin
+ if(inp) begin
+  state <= 2'b00;
+   out <= 1;
+ end
+
+ else begin
+  state <= 2'b10;
+ out <= 0
+end
+ end
+ 2'b10:
+begin
+ if(inp)
+ begin
+
+  state <= 2'b01;
+
+  out <= 0;
+
+  end
+ else begin
+
+  state <= 2'b00;
+      out <= 1;
+         end
+    end
+ default:
+                 begin
+                     state <= 2'b00;
+                     out <= 0;
+                 end
+             endcase
+         end
+ end
+ endmodule
+```
+OUTPUT:![image](https://github.com/user-attachments/assets/c903dba2-ee46-4d5b-96c4-e3b38dbff3ef)
 
 
-Conclusion
+
+# Conclusion
 In this experiment, Moore and Mealy FSMs were successfully designed and simulated to detect the sequence 1011. Both designs worked as expected, with the main difference being that the Moore FSM generated the output based on the current state, while the Mealy FSM generated the output based on both the current state and input. The testbench verified the functionality of both FSMs, demonstrating that the Verilog HDL can effectively model both types of state machines for sequence detection tasks.
